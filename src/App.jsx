@@ -197,7 +197,7 @@ import VolunteerRegister from "./pages/VolunteerRegister";
 // Private Pages
 import Dashboard from "./pages/Dashboard";
 import AdminPage from "./pages/AdminPage";
-import AdminLogin from "./pages/AdminLogin";
+import Adminlogin from "./pages/Adminlogin";
 import { useEffect, useState } from "react";
 
 // Layout for public pages
@@ -321,7 +321,7 @@ export default function App() {
     },
 
     // Admin routes (no header/navbar)
-    { path: "/admin-login", element: <AdminLogin setAdminUser={setAdminUser} /> },
+    { path: "/admin-login", element: <Adminlogin setAdminUser={setAdminUser} /> },
     {
       path: "/admin",
       element: (
