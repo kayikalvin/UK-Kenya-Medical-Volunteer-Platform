@@ -119,8 +119,8 @@ export default function App() {
     },
 
     // Auth routes
-    { path: "/sign-in", element: <SignInPage routing="path" path="/sign-in"  /> },
-    { path: "/sign-up", element: <SignUpPage routing="path" path="/sign-up" /> },
+    { path: "/sign-in", element: <SignInPage   /> },
+    { path: "/sign-up", element: <SignUpPage /> },
   ]);
 
   return <RouterProvider router={router} />;
