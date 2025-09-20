@@ -77,7 +77,7 @@ const Navbar = () => {
             <SignedOut>
               <NavLink
                 to="/sign-up"
-                className="px-3 py-2 rounded-md bg-[var(--primary)] text-[var(--background)] hover:scale-105 hover:bg-[var(--text)] transition"
+                className="px-3 py-2 rounded-md bg-[var(--primary)]  text-[var(--background)] hover:scale-105 hover:bg-[var(--text)] transition"
               >
                 Get Started
               </NavLink>
