@@ -222,14 +222,14 @@ const Home = ({ setActiveTab }) => {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0E1A2A] via-[#1B263B] to-[#0E1A2A]"></div>
-        <div className="relative container mx-auto px-6 py-20 text-center z-10">
+        <div className="relative container mx-auto px-6 py-4 md:py-20 text-center z-10">
           <div className="max-w-4xl mx-auto">
-            <div className="inline-flex items-center bg-[var(--muted)]/40 backdrop-blur-md rounded-full px-6 py-2 mb-8">
+            <div className="inline-flex items-center bg-[var(--muted)]/40 backdrop-blur-md rounded-full px-6 py-2 mb-4 md:mb-8">
               <Heart className="w-5 h-5 mr-2 text-[var(--secondary)]" />
               <span className="text-sm font-medium text-[var(--muted-foreground)]">Connecting Healthcare Globally</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+            <h1 className="text-4xl md:text-7xl font-extrabold mb-6 leading-tight">
               <span className="block bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
                 Bridging Healthcare
               </span>
@@ -238,7 +238,7 @@ const Home = ({ setActiveTab }) => {
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto leading-relaxed text-[var(--ptext)]">
+            <p className="text-lg md:text-2xl mb-12 max-w-3xl mx-auto leading-relaxed text-[var(--ptext)]">
               Empowering meaningful exchange of medical professionals between the UK and Kenya.
               Building bridges that save lives and transform communities.
             </p>
@@ -246,14 +246,14 @@ const Home = ({ setActiveTab }) => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <button
                 onClick={() => setActiveTab("clinician-register")}
-                className="group bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-[var(--primary)]/50 flex items-center justify-center"
+                className="group bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] px-8 py-4 rounded-full font-semibold text-sm md:text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-[var(--primary)]/50 flex items-center justify-center"
               >
                 Get Started as a Clinician
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
                 onClick={() => setActiveTab("hospital-register")}
-                className="group bg-[var(--muted)]/50 backdrop-blur-md hover:bg-[var(--muted)]/70 border border-[var(--border)] px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center"
+                className="group bg-[var(--muted)]/50 backdrop-blur-md hover:bg-[var(--muted)]/70 border border-[var(--border)] px-8 py-4 rounded-full font-semibold text-sm md:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center"
               >
                 Register Your Hospital
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />

@@ -36,12 +36,12 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="w-full z-50 bg-[var(--foreground)] font-bold shadow-md h-[100px] flex justify-around items-center">
+<nav className="w-full z-50 bg-[var(--foreground)] font-bold shadow-[0_4px_6px_rgba(255,255,255,0.3)] h-[100px] flex justify-around items-center">
       {/* Top Bar: Logo + Hamburger */}
       <div className="flex items-center justify-between px-4 py-3 md:justify-between">
         {/* Logo */}
-        <NavLink to="/" className="flex items-center md:mr-20">
-          <span className="text-[var(--text)] font-bold text-2xl">
+        <NavLink to="/" className="flex items-center mr-20">
+          <span className="text-[var(--text)] font-bold text-xl md:text-2xl">
             Anchored Health
           </span>
         </NavLink>
@@ -88,7 +88,7 @@ const Navbar = () => {
 
       {/* Mobile Overlay Menu */}
       {isOpen && (
-        <div className="fixed inset-0 bg-[var(--primary)] bg-opacity-95 flex flex-col items-center justify-center space-y-6 md:hidden z-50 transition-all">
+        <div className="fixed inset-0 bg-teal-900  flex flex-col items-center justify-center space-y-6 md:hidden z-50 transition-all">
           {tabs.map((tab) => renderLink(tab, "text-xl text-[var(--background)]"))}
           {role === "admin" &&
             renderLink(
