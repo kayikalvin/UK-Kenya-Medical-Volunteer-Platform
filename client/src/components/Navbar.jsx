@@ -24,10 +24,10 @@ const Navbar = () => {
       to={tab.path}
       onClick={() => setIsOpen(false)}
       className={({ isActive }) =>
-        `block px-4 py-2 rounded-md transition font-semibold ${
+        `block px-4 py-2 rounded-md transition font-semibold md:text-sm ${
           isActive
-            ? "bg-[var(--primary)] text-[var(--background)]"
-            : "text-[var(--text)] hover:bg-[var(--primary-hover)] hover:text-[var(--background)]"
+            ? "bg-[var(--primary)] text-[var(--text)]"
+            : "text-[var(--text)] hover:bg-[var(--primary-foreground)] hover:text-[var(--background)]"
         } ${extraClasses}`
       }
     >
@@ -41,7 +41,7 @@ const Navbar = () => {
       <div className="flex items-center justify-between px-4 py-3 md:justify-between">
         {/* Logo */}
         <NavLink to="/" className="flex items-center md:mr-20">
-          <span className="text-[var(--text)] font-bold text-3xl">
+          <span className="text-[var(--text)] font-bold text-2xl">
             Anchored Health
           </span>
         </NavLink>
@@ -57,7 +57,7 @@ const Navbar = () => {
         {/* Desktop Links & Auth */}
         <div className="hidden md:flex md:items-center md:space-x-6">
           {/* Links */}
-          <ul className="flex space-x-3">
+          <ul className="flex justify-center items-center space-x-3">
             {tabs.map((tab) =>
               renderLink(tab, "hover:scale-105 hover:bg-[var(--accent-foreground)]")
             )}
