@@ -22,13 +22,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    // For department checkboxes we'll update array via handleDeptChange
-    if (type === "checkbox" && name === "department") {
-      // not used here
-      return;
-    }
-
+    if (type === "checkbox" && name === "department") return;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -46,7 +40,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setAlert({ type: "error", message: "Geolocation is not supported by this browser." });
+      setAlert({ type: "error", message: "Geolocation not supported." });
       return;
     }
 
@@ -57,34 +51,28 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
           latitude: pos.coords.latitude.toFixed(6),
           longitude: pos.coords.longitude.toFixed(6),
         }));
-        setAlert({ type: "success", message: "GPS location captured successfully!" });
+        setAlert({ type: "success", message: "GPS location captured!" });
       },
       () => {
-        setAlert({ type: "error", message: "Unable to get GPS location. Please enter manually." });
+        setAlert({ type: "error", message: "Unable to get GPS location." });
       }
     );
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Basic validation
     if (!form.name || !form.type || !form.county || !form.contactPerson || !form.contactEmail) {
       setAlert({ type: "error", message: "Please fill required fields." });
       return;
     }
-
     const newHospital = {
       ...form,
       id: Date.now(),
       registrationDate: new Date().toISOString(),
-      verified: true, // keep demo behavior: hospitals auto-verified
+      verified: true,
     };
-
     setHospitals([...hospitals, newHospital]);
     setAlert({ type: "success", message: "Hospital registration successful!" });
-
-    // reset form
     setForm({
       name: "",
       type: "",
@@ -116,12 +104,12 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto my-0">
-      <h2 className="text-2xl font-bold text-blue-800 mb-4">Hospital Registration</h2>
+    <div className="bg-[var(--background)] text-[var(--muted-foreground)] p-8 rounded-2xl shadow-white/20 max-w-4xl mx-auto my-10">
+      <h2 className="text-3xl font-bold mb-6 text-[var(--primary)]">Hospital Registration</h2>
 
       {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid md:grid-cols-2 gap-4">
           <input
             name="name"
@@ -129,14 +117,14 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             onChange={handleChange}
             placeholder="Hospital Name *"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
           <select
             name="type"
             value={form.type}
             onChange={handleChange}
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           >
             <option value="">Hospital Type *</option>
             <option value="Public">Public Hospital</option>
@@ -151,7 +139,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             value={form.county}
             onChange={handleChange}
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           >
             <option value="">Select County *</option>
             <option>Nairobi</option>
@@ -178,7 +166,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             type="number"
             min="1"
             placeholder="Number of Beds"
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
         </div>
 
@@ -189,7 +177,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             onChange={handleChange}
             placeholder="Contact Person Name *"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
           <input
             name="contactTitle"
@@ -197,7 +185,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             onChange={handleChange}
             placeholder="Contact Title (e.g., Medical Director) *"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
           <input
             name="contactEmail"
@@ -206,7 +194,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             type="email"
             placeholder="Contact Email *"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
           <input
             name="contactPhone"
@@ -214,7 +202,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             onChange={handleChange}
             placeholder="Contact Phone *"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
         </div>
 
@@ -224,14 +212,14 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             value={form.latitude}
             onChange={handleChange}
             placeholder="GPS Latitude"
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
           <input
             name="longitude"
             value={form.longitude}
             onChange={handleChange}
             placeholder="GPS Longitude"
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
         </div>
 
@@ -239,11 +227,11 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
           <button
             type="button"
             onClick={getCurrentLocation}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg transition"
           >
             📍 Get Current GPS Location
           </button>
-          <span className="text-sm text-gray-600">or enter coordinates manually</span>
+          <span className="text-[var(--muted-foreground)] text-sm">or enter coordinates manually</span>
         </div>
 
         <textarea
@@ -252,19 +240,19 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
           onChange={handleChange}
           placeholder="Describe clinical needs *"
           required
-          className="border p-2 rounded w-full"
+          className="w-full bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
         />
 
         <div>
-          <label className="block font-semibold mb-2">Available Departments</label>
+          <label className="block font-semibold mb-2 text-[var(--muted-foreground)]">Available Departments</label>
           <div className="grid md:grid-cols-3 gap-2">
             {departmentsList.map((d) => (
-              <label key={d} className="flex items-center gap-2">
+              <label key={d} className="flex items-center gap-2 text-[var(--muted-foreground)]">
                 <input
                   type="checkbox"
                   checked={form.departments.includes(d)}
                   onChange={() => handleDeptChange(d)}
-                  className="w-4 h-4"
+                  className="w-4 h-4 accent-[var(--primary)]"
                 />
                 <span>{d}</span>
               </label>
@@ -276,7 +264,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
           name="accommodation"
           value={form.accommodation}
           onChange={handleChange}
-          className="border p-2 rounded"
+          className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
         >
           <option value="">Accommodation Available</option>
           <option value="Yes">Yes - On-site accommodation</option>
@@ -284,11 +272,12 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
           <option value="No">No - Volunteers arrange own</option>
         </select>
 
-        <div>
-          <button type="submit" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-            Register Hospital
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="w-full bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] py-3 rounded-full font-semibold text-lg transition-all duration-300 shadow-white/20"
+        >
+          Register Hospital
+        </button>
       </form>
     </div>
   );

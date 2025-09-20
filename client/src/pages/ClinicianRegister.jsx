@@ -61,10 +61,11 @@ export default function ClinicianRegister({ clinicians, setClinicians }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md  max-w-3xl mx-auto my-6">
-      <h2 className="text-2xl font-bold text-blue-800 mb-4">
+    <div className="bg-[var(--background)] text-[var(--muted-foreground)] p-8 rounded-2xl shadow-white/20 max-w-3xl mx-auto my-10">
+      <h2 className="text-3xl font-bold mb-6 text-[var(--primary)]">
         Clinician Registration
       </h2>
+
       {alert && (
         <Alert
           type={alert.type}
@@ -72,14 +73,15 @@ export default function ClinicianRegister({ clinicians, setClinicians }) {
           onClose={() => setAlert(null)}
         />
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-4 ">
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="grid md:grid-cols-2 gap-4">
           <select
             name="title"
             value={form.title}
             onChange={handleChange}
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           >
             <option value="">Select Title</option>
             <option>Dr</option>
@@ -95,16 +97,18 @@ export default function ClinicianRegister({ clinicians, setClinicians }) {
             onChange={handleChange}
             placeholder="First Name"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
+
           <input
             name="lastName"
             value={form.lastName}
             onChange={handleChange}
             placeholder="Last Name"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
+
           <input
             name="email"
             type="email"
@@ -112,8 +116,9 @@ export default function ClinicianRegister({ clinicians, setClinicians }) {
             onChange={handleChange}
             placeholder="Email"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
+
           <input
             name="phone"
             type="tel"
@@ -121,14 +126,15 @@ export default function ClinicianRegister({ clinicians, setClinicians }) {
             onChange={handleChange}
             placeholder="Phone"
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           />
+
           <select
             name="profession"
             value={form.profession}
             onChange={handleChange}
             required
-            className="border p-2 rounded"
+            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           >
             <option value="">Select Profession</option>
             <option>Doctor</option>
@@ -150,7 +156,7 @@ export default function ClinicianRegister({ clinicians, setClinicians }) {
           value={form.availability}
           onChange={handleChange}
           placeholder="Describe availability"
-          className="border p-2 rounded w-full"
+          className="w-full bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
         />
 
         <select
@@ -158,7 +164,7 @@ export default function ClinicianRegister({ clinicians, setClinicians }) {
           value={form.preferredCounties}
           onChange={handleChange}
           multiple
-          className="border p-2 rounded w-full"
+          className="w-full bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
         >
           <option value="Nairobi">Nairobi</option>
           <option value="Mombasa">Mombasa</option>
@@ -171,12 +177,12 @@ export default function ClinicianRegister({ clinicians, setClinicians }) {
           value={form.additionalInfo}
           onChange={handleChange}
           placeholder="Additional info"
-          className="border p-2 rounded w-full"
+          className="w-full bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
         />
 
         <button
           type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="w-full bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] py-3 rounded-full font-semibold text-lg transition-all duration-300 shadow-white/20"
         >
           Register as Clinician
         </button>

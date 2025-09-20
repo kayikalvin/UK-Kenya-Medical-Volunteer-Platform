@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+button {
+  cursor: pointer;
+}
+
+/* Hide number spinners */
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Theme mapping */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+/* 🌙 Default (light) */
+:root {
+  --radius: 0.625rem;
+
+  /* Backgrounds */
+  --background: #10172B;
+  --foreground: #0E1A2A;
+
+  /* Core Colors */
+  --primary: #7AD8B948; /* Teal green */
+  --primary-foreground: #ffffff;
+
+  --secondary: #00E0A1; /* Lighter teal */
+  --secondary-foreground: #0E1A2A;
+
+  --accent: #0D1B2A; /* Deep navy */
+  --accent-foreground: #ffffff;
+
+  --muted: #fdfdfd;
+  --muted-foreground: #4B5563;
+
+  /* UI */
+  --border: #7AD8B948;
+  --input: #1B263B;
+  --ring: #00C48C;
+
+  /* Text */
+  --text: #d6d6d6;
+  --ptext: #B0B8C4;
+}
+
+/* 🌙 Dark mode (from Anchored Health screenshot) */
+.dark {
+  --background: #0E1A2A; /* Navy background */
+  --foreground: #ffffff;
+
+  --primary: #00C48C; /* Teal green */
+  --primary-foreground: #0E1A2A;
+
+  --secondary: #00E0A1; /* Lighter teal accent */
+  --secondary-foreground: #0E1A2A;
+
+  --accent: #1B263B; /* Deeper navy */
+  --accent-foreground: #ffffff;
+
+  --muted: #2C3E50;
+  --muted-foreground: #B0B8C4;
+
+  --border: #1B263B;
+  --input: #1B263B;
+  --ring: #00E0A1;
+
+  --text: #ffffff;
+  --ptext: #B0B8C4;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

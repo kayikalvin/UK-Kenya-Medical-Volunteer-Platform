@@ -2,7 +2,7 @@ import React from 'react'
 
 const Header = () => {
   return (
-    <header className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-2 md:py-8 text-center w-full">
+    <header className="bg-[]var(--foregroound) text-white py-2 md:py-8 text-center w-full">
       <h1 className="text-lg md:text-3xl font-bold">
          UK-Kenya Medical Volunteer Platform
       </h1>
