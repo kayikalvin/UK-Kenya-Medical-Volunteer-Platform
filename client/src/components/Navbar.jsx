@@ -10,12 +10,12 @@ const Navbar = () => {
 
   const tabs = [
     { path: "/", label: "Home" },
-    { path: "/clinician-register", label: "Clinician Registration" },
+    { path: "/volunteer-register", label: "Volunteer Register" },
     { path: "/hospital-register", label: "Hospital Registration" },
     { path: "/verify-credentials", label: "Verify Credentials" },
     { path: "/search-opportunities", label: "Find Opportunities" },
     { path: "/search-volunteers", label: "Find Clinicians" },
-    { path: "/volunteer-register", label: "Volunteer Register" },
+    // { path: "/clinician-register", label: "Clinician Registration" },
   ];
 
   const renderLink = (tab, extraClasses = "") => (
@@ -36,7 +36,7 @@ const Navbar = () => {
   );
 
   return (
-<nav className="w-full z-50 bg-[var(--foreground)] font-bold shadow-[0_4px_6px_rgba(255,255,255,0.3)] h-[100px] flex justify-around items-center">
+    <nav className="w-full z-50 bg-[var(--foreground)] font-bold shadow-[0_4px_6px_rgba(255,255,255,0.3)] h-[100px] flex justify-around items-center">
       {/* Top Bar: Logo + Hamburger */}
       <div className="flex items-center justify-between px-4 py-3 md:justify-between">
         {/* Logo */}
@@ -59,12 +59,22 @@ const Navbar = () => {
           {/* Links */}
           <ul className="flex justify-center items-center space-x-3">
             {tabs.map((tab) =>
-              renderLink(tab, "hover:scale-105 hover:bg-[var(--accent-foreground)]")
+              renderLink(
+                tab,
+                "hover:scale-105 hover:bg-[var(--accent-foreground)]"
+              )
             )}
             {role === "admin" &&
               renderLink(
                 { path: "/admin", label: "Admin Panel" },
                 "bg-[var(--accent)] hover:text-[var(--text)]"
+              )}
+            {/* Non-admin (volunteer/clinician/etc.) link */}
+            {role !== "admin" &&
+              user &&
+              renderLink(
+                { path: "/dashboard", label: "Dashboard" },
+                "bg-[var(--primary)] hover:text-[var(--text)]"
               )}
           </ul>
 
@@ -89,7 +99,9 @@ const Navbar = () => {
       {/* Mobile Overlay Menu */}
       {isOpen && (
         <div className="fixed inset-0 bg-teal-900  flex flex-col items-center justify-center space-y-6 md:hidden z-50 transition-all">
-          {tabs.map((tab) => renderLink(tab, "text-xl text-[var(--background)]"))}
+          {tabs.map((tab) =>
+            renderLink(tab, "text-xl text-[var(--background)]")
+          )}
           {role === "admin" &&
             renderLink(
               { path: "/admin", label: "Admin Panel" },

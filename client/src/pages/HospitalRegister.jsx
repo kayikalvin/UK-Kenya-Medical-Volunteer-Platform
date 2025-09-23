@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import Alert from "../components/Alert";
 
 export default function HospitalRegister({ hospitals, setHospitals }) {
+  const { getToken } = useAuth();
+  const { user } = useUser();
+
   const [form, setForm] = useState({
     name: "",
     type: "",
@@ -19,6 +23,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
   });
 
   const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -59,35 +64,68 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.name || !form.type || !form.county || !form.contactPerson || !form.contactEmail) {
       setAlert({ type: "error", message: "Please fill required fields." });
       return;
     }
-    const newHospital = {
-      ...form,
-      id: Date.now(),
-      registrationDate: new Date().toISOString(),
-      verified: true,
-    };
-    setHospitals([...hospitals, newHospital]);
-    setAlert({ type: "success", message: "Hospital registration successful!" });
-    setForm({
-      name: "",
-      type: "",
-      county: "",
-      beds: "",
-      contactPerson: "",
-      contactTitle: "",
-      contactEmail: "",
-      contactPhone: "",
-      latitude: "",
-      longitude: "",
-      clinicalNeeds: "",
-      departments: [],
-      accommodation: "",
-    });
+
+    try {
+      setLoading(true);
+
+      const token = await getToken();
+      if (!token) {
+        setAlert({ type: "error", message: "Authentication required." });
+        return;
+      }
+
+      const payload = {
+        ...form,
+        clerkId: user?.id,
+        registrationDate: new Date().toISOString(),
+      };
+
+      const res = await fetch("http://localhost:5000/api/hospitals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Clerk session token
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to register hospital");
+      }
+
+      setHospitals([...hospitals, data]); // backend returns hospital
+      setAlert({ type: "success", message: "Hospital registration successful!" });
+
+      setForm({
+        name: "",
+        type: "",
+        county: "",
+        beds: "",
+        contactPerson: "",
+        contactTitle: "",
+        contactEmail: "",
+        contactPhone: "",
+        latitude: "",
+        longitude: "",
+        clinicalNeeds: "",
+        departments: [],
+        accommodation: "",
+      });
+    } catch (err) {
+      console.error("Error registering hospital:", err);
+      setAlert({ type: "error", message: err.message || "Error registering hospital." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const departmentsList = [
@@ -117,21 +155,21 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             onChange={handleChange}
             placeholder="Hospital Name *"
             required
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <select
             name="type"
             value={form.type}
             onChange={handleChange}
             required
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           >
             <option value="">Hospital Type *</option>
-            <option value="Public">Public Hospital</option>
-            <option value="Private">Private Hospital</option>
-            <option value="Mission">Mission Hospital</option>
+            <option value="Public">Public</option>
+            <option value="Private">Private</option>
+            <option value="Mission">Mission</option>
             <option value="NGO">NGO-operated</option>
-            <option value="County">County Hospital</option>
+            <option value="County">County</option>
           </select>
 
           <select
@@ -139,7 +177,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             value={form.county}
             onChange={handleChange}
             required
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           >
             <option value="">Select County *</option>
             <option>Nairobi</option>
@@ -166,7 +204,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             type="number"
             min="1"
             placeholder="Number of Beds"
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
         </div>
 
@@ -175,17 +213,17 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             name="contactPerson"
             value={form.contactPerson}
             onChange={handleChange}
-            placeholder="Contact Person Name *"
+            placeholder="Contact Person *"
             required
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <input
             name="contactTitle"
             value={form.contactTitle}
             onChange={handleChange}
-            placeholder="Contact Title (e.g., Medical Director) *"
+            placeholder="Contact Title *"
             required
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <input
             name="contactEmail"
@@ -194,7 +232,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             type="email"
             placeholder="Contact Email *"
             required
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <input
             name="contactPhone"
@@ -202,7 +240,7 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             onChange={handleChange}
             placeholder="Contact Phone *"
             required
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
         </div>
 
@@ -212,27 +250,24 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
             value={form.latitude}
             onChange={handleChange}
             placeholder="GPS Latitude"
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <input
             name="longitude"
             value={form.longitude}
             onChange={handleChange}
             placeholder="GPS Longitude"
-            className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={getCurrentLocation}
-            className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg transition"
-          >
-            📍 Get Current GPS Location
-          </button>
-          <span className="text-[var(--muted-foreground)] text-sm">or enter coordinates manually</span>
-        </div>
+        <button
+          type="button"
+          onClick={getCurrentLocation}
+          className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg"
+        >
+          📍 Get GPS Location
+        </button>
 
         <textarea
           name="clinicalNeeds"
@@ -240,14 +275,14 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
           onChange={handleChange}
           placeholder="Describe clinical needs *"
           required
-          className="w-full bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="w-full bg-[var(--accent)] p-3 rounded-lg border"
         />
 
         <div>
-          <label className="block font-semibold mb-2 text-[var(--muted-foreground)]">Available Departments</label>
+          <label className="block font-semibold mb-2">Available Departments</label>
           <div className="grid md:grid-cols-3 gap-2">
             {departmentsList.map((d) => (
-              <label key={d} className="flex items-center gap-2 text-[var(--muted-foreground)]">
+              <label key={d} className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={form.departments.includes(d)}
@@ -264,19 +299,20 @@ export default function HospitalRegister({ hospitals, setHospitals }) {
           name="accommodation"
           value={form.accommodation}
           onChange={handleChange}
-          className="bg-[var(--accent)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="bg-[var(--accent)] p-3 rounded-lg border"
         >
           <option value="">Accommodation Available</option>
-          <option value="Yes">Yes - On-site accommodation</option>
-          <option value="Nearby">Nearby accommodation available</option>
-          <option value="No">No - Volunteers arrange own</option>
+          <option value="Yes">Yes - On-site</option>
+          <option value="Nearby">Nearby</option>
+          <option value="No">No</option>
         </select>
 
         <button
           type="submit"
-          className="w-full bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] py-3 rounded-full font-semibold text-lg transition-all duration-300 shadow-white/20"
+          disabled={loading}
+          className="w-full bg-[var(--primary)] text-white py-3 rounded-full font-semibold text-lg"
         >
-          Register Hospital
+          {loading ? "Registering..." : "Register Hospital"}
         </button>
       </form>
     </div>

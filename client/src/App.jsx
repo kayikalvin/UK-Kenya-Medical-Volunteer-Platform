@@ -1,17 +1,15 @@
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import {
   SignedIn,
   SignedOut,
   RedirectToSignIn,
   useUser,
-  SignIn,
-  SignUp,
+  useAuth,
 } from "@clerk/clerk-react";
 
 import { useState } from "react";
 import Navbar from "./components/Navbar";
-import Header from "./components/Header";
 
 // Public Pages
 import Home from "./pages/Home";
@@ -31,8 +29,7 @@ import SignUpPage from "./components/SignUpPage";
 // --- Layouts ---
 function PublicLayout() {
   return (
-    <div className="h-[100%] overflow-x-hidden px-0 md:px-0 flex flex-col w-full md:max-w-[896px] lg:max-w-full mx-auto">
-      {/* <Header /> */}
+    <div className="h-[100%] overflow-x-hidden flex flex-col w-full md:max-w-[896px] lg:max-w-full mx-auto">
       <Navbar />
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <div className="h-[calc(100vh-100px)] overflow-y-auto">
@@ -51,6 +48,28 @@ function DashboardLayout() {
   );
 }
 
+// --- Protect Dashboard Route ---
+function DashboardRoute() {
+  const { isLoaded } = useAuth();
+  const { user } = useUser();
+
+  if (!isLoaded) return <div>Loading...</div>;
+
+  return (
+    <>
+      <SignedIn>
+        <DashboardLayout>
+          <Outlet />
+        </DashboardLayout>
+      </SignedIn>
+
+      <SignedOut>
+        <Navigate to="/" replace />
+      </SignedOut>
+    </>
+  );
+}
+
 // --- Admin Guard ---
 function AdminGuard({ children }) {
   const { isLoaded, user } = useUser();
@@ -61,7 +80,7 @@ function AdminGuard({ children }) {
   const role = user.publicMetadata?.role;
   if (role !== "admin") return <RedirectToSignIn />;
 
-  return <>{children}</>; // render wrapped children
+  return <>{children}</>;
 }
 
 // --- Main App ---
@@ -78,9 +97,9 @@ export default function App() {
       children: [
         { index: true, element: <Home /> },
         { path: "clinician-register", element: <ClinicianRegister /> },
-        { path: "hospital-register", element: <HospitalRegister /> },
+        { path: "hospital-register", element: <HospitalRegister hospitals={hospitals} setHospitals={setHospitals} /> },
         { path: "verify-credentials", element: <VerifyCredentials /> },
-        { path: "search-opportunities", element: <SearchOpportunities hospitals={hospitals} /> },
+        { path: "search-opportunities", element: <SearchOpportunities /> },
         { path: "search-volunteers", element: <SearchVolunteers clinicians={clinicians} /> },
         { path: "volunteer-register", element: <VolunteerRegister /> },
       ],
@@ -89,11 +108,7 @@ export default function App() {
     // Volunteer Dashboard (protected)
     {
       path: "/dashboard",
-      element: (
-        <SignedIn>
-          <DashboardLayout />
-        </SignedIn>
-      ),
+      element: <DashboardRoute />,
       children: [
         {
           index: true,
@@ -106,21 +121,26 @@ export default function App() {
     {
       path: "/admin",
       element: (
-      
-            <DashboardLayout />
-         
+        <AdminGuard>
+          <DashboardLayout />
+        </AdminGuard>
       ),
       children: [
         {
           index: true,
-          element: <AdminPage volunteers={volunteers} setVolunteers={setVolunteers} />,
+          element: (
+            <AdminPage
+              volunteers={volunteers}
+              setVolunteers={setVolunteers}
+            />
+          ),
         },
       ],
     },
 
     // Auth routes
-    { path: "/sign-in", element: <SignInPage   /> },
-    { path: "/sign-up", element: <SignUpPage /> },
+    { path: "/sign-in/*", element: <SignInPage /> },
+    { path: "/sign-up/*", element: <SignUpPage /> },
   ]);
 
   return <RouterProvider router={router} />;

@@ -1,17 +1,25 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useClerk, useUser, useAuth, SignedIn, SignedOut } from "@clerk/clerk-react";
+import {
+  useClerk,
+  useUser,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useAuth,
+} from "@clerk/clerk-react";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("volunteers");
   const [volunteers, setVolunteers] = useState([]);
+  const [hospitals, setHospitals] = useState([]);
+  const [clinicians, setClinicians] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const navigate = useNavigate();
-  const { user, isSignedIn } = useUser(); // for user info
-  const { getToken } = useAuth(); // for authentication token
-  const { signOut } = useClerk();
+  const { user, isSignedIn } = useUser();
+  const { getToken } = useAuth();
 
   // Redirect non-admins
   useEffect(() => {
@@ -20,16 +28,45 @@ export default function AdminPage() {
     }
   }, [isSignedIn, user, navigate]);
 
-  // Fetch volunteers
-  const fetchVolunteers = async () => {
+  // Fetch wrapper
+  const fetchWithToken = async (url, options = {}) => {
+    const token = await getToken();
+    const res = await fetch(`http://localhost:5000/api${url}`, {
+      ...options,
+      headers: {
+        ...(options.headers || {}),
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      let errorMsg = "API request failed";
+      try {
+        const error = await res.json();
+        errorMsg = error.error || errorMsg;
+      } catch {
+        // ignore non-JSON errors
+      }
+      throw new Error(errorMsg);
+    }
+
+    return res.json();
+  };
+
+  // Load data
+  const loadData = async () => {
     try {
-      const token = await getToken(); // useAuth provides getToken
-      const res = await fetch("http://localhost:5000/volunteers", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch volunteers");
-      const data = await res.json();
-      setVolunteers(data);
+      if (activeTab === "volunteers") {
+        const data = await fetchWithToken("/volunteers");
+        setVolunteers(data);
+      } else if (activeTab === "hospitals") {
+        const data = await fetchWithToken("/hospitals");
+        setHospitals(data);
+      } else if (activeTab === "clinicians") {
+        const data = await fetchWithToken("/clinicians");
+        setClinicians(data);
+      }
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -37,47 +74,34 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (activeTab === "volunteers") fetchVolunteers();
+    loadData();
   }, [activeTab]);
 
-  // Verify volunteer
+  // Actions
   const verifyVolunteer = async (id, status) => {
     try {
-      const token = await getToken();
-      const res = await fetch("http://localhost:5000/verify-volunteer", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userId: id, verificationStatus: status }),
+      await fetchWithToken(`/volunteers/${id}/verify`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
       });
-      if (!res.ok) throw new Error("Failed to verify volunteer");
-      fetchVolunteers();
+      loadData();
     } catch (err) {
       console.error(err);
       alert(err.message);
     }
   };
 
-  // Promote user to admin
   const promoteToAdmin = async () => {
     if (!selectedUser) return;
     try {
-      const token = await getToken();
-      const res = await fetch("http://localhost:5000/promote-to-admin", {
+      await fetchWithToken("/promote", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ userId: selectedUser.id }),
       });
-      if (!res.ok) throw new Error("Failed to promote user");
       alert(`${selectedUser.firstName} promoted to admin!`);
       setShowModal(false);
       setSelectedUser(null);
-      fetchVolunteers();
+      loadData();
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -90,19 +114,14 @@ export default function AdminPage() {
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 md:gap-0">
             <h1 className="text-2xl font-bold">Admin Panel</h1>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <button
                 onClick={() => navigate("/")}
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
               >
                 Back to Home
               </button>
-              <button
-                onClick={() => signOut()}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
-              >
-                Sign Out
-              </button>
+              <UserButton afterSignOutUrl="/sign-in" /> {/* ✅ Clerk's menu */}
             </div>
           </div>
 
@@ -131,7 +150,7 @@ export default function AdminPage() {
               ) : (
                 volunteers.map((v) => (
                   <div
-                    key={v.id}
+                    key={v._id}
                     className="bg-white shadow p-4 rounded flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-2"
                   >
                     <div>
@@ -144,13 +163,13 @@ export default function AdminPage() {
                     <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
                       <button
                         className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                        onClick={() => verifyVolunteer(v.id, "verified")}
+                        onClick={() => verifyVolunteer(v._id, "verified")}
                       >
                         Approve
                       </button>
                       <button
                         className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
-                        onClick={() => verifyVolunteer(v.id, "rejected")}
+                        onClick={() => verifyVolunteer(v._id, "rejected")}
                       >
                         Reject
                       </button>
@@ -171,11 +190,55 @@ export default function AdminPage() {
           )}
 
           {activeTab === "hospitals" && (
-            <div className="bg-white shadow p-4 rounded">Hospital management coming soon</div>
+            <div className="space-y-4">
+              {hospitals.length === 0 ? (
+                <p>No hospitals registered yet.</p>
+              ) : (
+                hospitals.map((h) => (
+                  <div
+                    key={h._id}
+                    className="bg-white shadow p-4 rounded flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-2"
+                  >
+                    <div>
+                      <h3 className="font-bold text-lg">{h.name}</h3>
+                      <p>
+                        {h.type} | {h.county}
+                      </p>
+                      <p>Beds: {h.beds}</p>
+                      <p>
+                        Contact: {h.contactPerson} ({h.contactEmail})
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           )}
 
           {activeTab === "clinicians" && (
-            <div className="bg-white shadow p-4 rounded">Clinician management coming soon</div>
+            <div className="space-y-4">
+              {clinicians.length === 0 ? (
+                <p>No clinicians registered yet.</p>
+              ) : (
+                clinicians.map((c) => (
+                  <div
+                    key={c._id}
+                    className="bg-white shadow p-4 rounded flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-2"
+                  >
+                    <div>
+                      <h3 className="font-bold text-lg">
+                        {c.title} {c.firstName} {c.lastName}
+                      </h3>
+                      <p>
+                        {c.profession} | {c.specialty}
+                      </p>
+                      <p>Employer: {c.employer}</p>
+                      <p>Availability: {c.availability}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           )}
         </div>
 

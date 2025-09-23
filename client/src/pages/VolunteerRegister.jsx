@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import Alert from "../components/Alert";
 
-export default function VolunteerRegister({ volunteers, setVolunteers, setCurrentUser }) {
+export default function VolunteerRegister() {
+  const { getToken } = useAuth();
+  const { user } = useUser();
+
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -19,49 +23,81 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
     motivation: "",
     previousVolunteer: "",
   });
+
   const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.firstName || !form.lastName || !form.email || !form.profession) {
       setAlert({ type: "error", message: "Please fill all required fields." });
       return;
     }
 
-    const newVolunteer = {
-      ...form,
-      id: Date.now(),
-      registrationDate: new Date().toISOString(),
-      verificationStatus: "pending",
-      registrationStatus: "completed",
-    };
+    try {
+      setLoading(true);
 
-    setVolunteers([...volunteers, newVolunteer]);
-    setCurrentUser(newVolunteer);
-    setAlert({ type: "success", message: "Registration submitted successfully!" });
+      const token = await getToken();
+      if (!token) {
+        setAlert({ type: "error", message: "Authentication required." });
+        return;
+      }
 
-    setForm({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      profession: "",
-      specialty: "",
-      registrationNumber: "",
-      yearsExperience: "",
-      currentEmployer: "",
-      availabilityStart: "",
-      availabilityEnd: "",
-      preferredDuration: "",
-      languages: "",
-      motivation: "",
-      previousVolunteer: "",
-    });
+      const payload = {
+        ...form,
+        clerkId: user?.id,
+        registrationDate: new Date().toISOString(),
+        verificationStatus: "pending",
+        registrationStatus: "completed",
+      };
+
+      const res = await fetch("http://localhost:5000/api/volunteers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Clerk session token
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to register volunteer");
+      }
+
+      setAlert({ type: "success", message: "Volunteer registered successfully!" });
+
+      // reset form
+      setForm({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        profession: "",
+        specialty: "",
+        registrationNumber: "",
+        yearsExperience: "",
+        currentEmployer: "",
+        availabilityStart: "",
+        availabilityEnd: "",
+        preferredDuration: "",
+        languages: "",
+        motivation: "",
+        previousVolunteer: "",
+      });
+    } catch (err) {
+      console.error("Error registering volunteer:", err);
+      setAlert({ type: "error", message: err.message || "Error registering volunteer." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,14 +113,16 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
             value={form.firstName}
             onChange={handleChange}
             placeholder="First Name *"
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            required
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <input
             name="lastName"
             value={form.lastName}
             onChange={handleChange}
             placeholder="Last Name *"
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            required
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
         </div>
 
@@ -95,14 +133,16 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
             onChange={handleChange}
             type="email"
             placeholder="Email *"
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            required
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <input
             name="phone"
             value={form.phone}
             onChange={handleChange}
             placeholder="Phone *"
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            required
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
         </div>
 
@@ -111,7 +151,8 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
             name="profession"
             value={form.profession}
             onChange={handleChange}
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            required
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           >
             <option value="">Select Profession *</option>
             <option>Doctor</option>
@@ -129,7 +170,7 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
             value={form.specialty}
             onChange={handleChange}
             placeholder="Specialty"
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
         </div>
 
@@ -139,13 +180,15 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
             value={form.registrationNumber}
             onChange={handleChange}
             placeholder="UK Registration Number *"
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            required
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <select
             name="yearsExperience"
             value={form.yearsExperience}
             onChange={handleChange}
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            required
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           >
             <option value="">Years of Experience *</option>
             <option>1-2</option>
@@ -161,7 +204,8 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
           value={form.currentEmployer}
           onChange={handleChange}
           placeholder="Current Employer *"
-          className="w-full bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          required
+          className="w-full bg-[var(--accent)] p-3 rounded-lg border"
         />
 
         <div className="grid md:grid-cols-2 gap-4">
@@ -170,14 +214,14 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
             value={form.availabilityStart}
             onChange={handleChange}
             type="date"
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
           <input
             name="availabilityEnd"
             value={form.availabilityEnd}
             onChange={handleChange}
             type="date"
-            className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+            className="bg-[var(--accent)] p-3 rounded-lg border"
           />
         </div>
 
@@ -185,7 +229,7 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
           name="preferredDuration"
           value={form.preferredDuration}
           onChange={handleChange}
-          className="w-full bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="w-full bg-[var(--accent)] p-3 rounded-lg border"
         >
           <option value="">Preferred Duration</option>
           <option>2-4 weeks</option>
@@ -199,7 +243,7 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
           value={form.languages}
           onChange={handleChange}
           placeholder="Languages (English, Swahili...)"
-          className="w-full bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="w-full bg-[var(--accent)] p-3 rounded-lg border"
         />
 
         <textarea
@@ -207,7 +251,7 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
           value={form.motivation}
           onChange={handleChange}
           placeholder="Why do you want to volunteer?"
-          className="w-full bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="w-full bg-[var(--accent)] p-3 rounded-lg border"
         />
 
         <textarea
@@ -215,14 +259,15 @@ export default function VolunteerRegister({ volunteers, setVolunteers, setCurren
           value={form.previousVolunteer}
           onChange={handleChange}
           placeholder="Previous international experience"
-          className="w-full bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="w-full bg-[var(--accent)] p-3 rounded-lg border"
         />
 
         <button
           type="submit"
-          className="w-full bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] py-3 rounded-full font-semibold text-lg transition shadow-white/20"
+          disabled={loading}
+          className="w-full bg-[var(--primary)] text-white py-3 rounded-full font-semibold text-lg"
         >
-          Submit Registration
+          {loading ? "Submitting..." : "Submit Registration"}
         </button>
       </form>
     </div>

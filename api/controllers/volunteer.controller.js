@@ -1,13 +1,29 @@
 import Volunteer from "../models/Volunteer.model.js";
 
-// Create volunteer
+/// Create volunteer
 export const createVolunteer = async (req, res) => {
-  const clerkUserId = req.userId;
-  const { firstName, lastName, email, phone, profession, specialty, registrationNumber, yearsExperience, currentEmployer, availabilityStart, availabilityEnd, preferredDuration, languages, motivation, previousVolunteer } = req.body;
+  const clerkId = req.auth.userId; // Clerk middleware gives you req.auth
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    profession,
+    specialty,
+    registrationNumber,
+    yearsExperience,
+    currentEmployer,
+    availabilityStart,
+    availabilityEnd,
+    preferredDuration,
+    languages,
+    motivation,
+    previousVolunteer,
+  } = req.body;
 
   try {
     const volunteer = new Volunteer({
-      clerkUserId,
+      clerkId,
       firstName,
       lastName,
       email,
@@ -26,9 +42,11 @@ export const createVolunteer = async (req, res) => {
     });
 
     await volunteer.save();
-    res.status(201).json({ message: "Volunteer registered successfully", volunteer });
+    res
+      .status(201)
+      .json({ message: "Volunteer registered successfully", volunteer });
   } catch (err) {
-    console.error(err);
+    console.error("Error creating volunteer:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -39,21 +57,37 @@ export const getVolunteers = async (req, res) => {
     const volunteers = await Volunteer.find();
     res.json(volunteers);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error fetching volunteers:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 };
 
-// Verify volunteer (admin)
+// Verify volunteer (admin, RESTful)
 export const verifyVolunteer = async (req, res) => {
-  const { volunteerId, verificationStatus } = req.body;
-  if (!volunteerId || !verificationStatus) return res.status(400).json({ error: "volunteerId and verificationStatus required" });
+  const { id } = req.params; // 👈 take ID from route param
+  const { status } = req.body; // expecting { "status": "verified" | "rejected" }
+
+  if (!status) {
+    return res.status(400).json({ error: "status is required" });
+  }
 
   try {
-    const volunteer = await Volunteer.findByIdAndUpdate(volunteerId, { verificationStatus }, { new: true });
-    res.json({ message: `Volunteer ${verificationStatus}`, volunteer });
+    const volunteer = await Volunteer.findByIdAndUpdate(
+      id,
+      { verificationStatus: status },
+      { new: true }
+    );
+
+    if (!volunteer) {
+      return res.status(404).json({ error: "Volunteer not found" });
+    }
+
+    res.json({
+      message: `Volunteer marked as ${status}`,
+      volunteer,
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Verify volunteer error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };

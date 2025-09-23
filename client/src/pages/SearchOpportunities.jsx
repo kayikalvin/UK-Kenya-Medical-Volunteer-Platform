@@ -1,18 +1,42 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import Alert from "../components/Alert";
 
-export default function SearchOpportunities({ hospitals }) {
+export default function SearchOpportunities() {
+  const { getToken } = useAuth(); // 🔑 get Clerk token
   const [filters, setFilters] = useState({
     county: "",
     specialty: "",
     accommodation: "",
   });
   const [results, setResults] = useState([]);
+  const [hospitals, setHospitals] = useState([]);
   const [alert, setAlert] = useState(null);
 
+  // Fetch hospitals from backend with token
   useEffect(() => {
-    setResults(hospitals.filter((h) => h.verified));
-  }, [hospitals]);
+  const fetchHospitals = async () => {
+    try {
+      const token = await getToken();
+      const res = await fetch("http://localhost:5000/api/hospitals/public", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch hospitals");
+      const data = await res.json();
+      setHospitals(data);
+      setResults(data); // 👈 don’t filter by verified
+    } catch (err) {
+      console.error("Error fetching hospitals:", err);
+      setAlert({ type: "error", message: "Unable to load hospitals." });
+    }
+  };
+
+  fetchHospitals();
+}, [getToken]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,64 +77,24 @@ export default function SearchOpportunities({ hospitals }) {
   };
 
   return (
-    <div className="bg-[var(--background)] text-[var(--muted-foreground)] p-8 rounded-2xl shadow-white/20 max-w-4xl mx-auto my-10">
+    <div className="bg-[var(--background)] text-[var(--muted-foreground)] p-8 rounded-2xl shadow-white/20 max-w-7xl mx-auto my-10">
       <h2 className="text-3xl font-bold mb-6 text-[var(--primary)]">Find Volunteer Opportunities</h2>
 
       {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
 
+      {/* Filters */}
       <div className="grid md:grid-cols-3 gap-4 mb-6">
         <select
           name="county"
           value={filters.county}
           onChange={handleChange}
-          className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="bg-[var(--accent)] border border-[var(--border)] p-3 rounded-lg"
         >
           <option value="">All Counties</option>
-          <option>Baringo</option>
-          <option>Bomet</option>
-          <option>Bungoma</option>
-          <option>Busia</option>
-          <option>Elgeyo-Marakwet</option>
-          <option>Embu</option>
-          <option>Garissa</option>
-          <option>Homa Bay</option>
-          <option>Isiolo</option>
-          <option>Kajiado</option>
-          <option>Kakamega</option>
-          <option>Kericho</option>
-          <option>Kiambu</option>
-          <option>Kilifi</option>
-          <option>Kirisii</option>
-          <option>Kisii</option>
-          <option>Kisumu</option>
-          <option>Kitui</option>
-          <option>Kwale</option>
-          <option>Laikipia</option>
-          <option>Lamu</option>
-          <option>Machakos</option>
-          <option>Makueni</option>
-          <option>Mandera</option>
-          <option>Meru</option>
-          <option>Migori</option>
-          <option>Marsabit</option>
-          <option>Mombasa</option>
           <option>Nairobi</option>
-          <option>Nakuru</option>
-          <option>Nandi</option>
-          <option>Nyamira</option>
-          <option>Nyandarua</option>
-          <option>Nyang’oma</option>
-          <option>Siaya</option>
-          <option>Taita-Taveta</option>
-          <option>Tana River</option>
-          <option>Tharaka-Nithi</option>
-          <option>Trans-Nzoia</option>
-          <option>Turkana</option>
-          <option>Uasin Gishu</option>
-          <option>Vihiga</option>
-          <option>Wajir</option>
-          <option>West Pokot</option>
-
+          <option>Kisumu</option>
+          <option>Mombasa</option>
+          {/* add more counties */}
         </select>
 
         <input
@@ -118,14 +102,14 @@ export default function SearchOpportunities({ hospitals }) {
           value={filters.specialty}
           onChange={handleChange}
           placeholder="Required Specialty (e.g., Surgery)"
-          className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="bg-[var(--accent)] border border-[var(--border)] p-3 rounded-lg"
         />
 
         <select
           name="accommodation"
           value={filters.accommodation}
           onChange={handleChange}
-          className="bg-[var(--accent)] placeholder-[var(--muted-foreground)] border border-[var(--border)] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+          className="bg-[var(--accent)] border border-[var(--border)] p-3 rounded-lg"
         >
           <option value="">Any Accommodation</option>
           <option value="Yes">On-site available</option>
@@ -133,10 +117,11 @@ export default function SearchOpportunities({ hospitals }) {
         </select>
       </div>
 
+      {/* Buttons */}
       <div className="mb-6 flex gap-3">
         <button
           onClick={searchOpportunities}
-          className="bg-[var(--secondary)] hover:bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg shadow-white/20 transition"
+          className="bg-[var(--secondary)] hover:bg-[var(--primary)] text-white px-4 py-2 rounded-lg"
         >
           Search Opportunities
         </button>
@@ -146,20 +131,21 @@ export default function SearchOpportunities({ hospitals }) {
             setResults(hospitals.filter((h) => h.verified));
             setAlert(null);
           }}
-          className="bg-[var(--accent)] hover:bg-[var(--border)] text-[var(--muted-foreground)] px-4 py-2 rounded-lg transition"
+          className="bg-[var(--accent)] hover:bg-[var(--border)] text-gray-700 px-4 py-2 rounded-lg"
         >
           Reset
         </button>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* Results */}
+      <div className="grid md:grid-cols-3 gap-6">
         {results.length === 0 ? (
-          <div className="text-[var(--muted-foreground)]">No opportunities to show.</div>
+          <div>No opportunities to show.</div>
         ) : (
           results.map((h) => (
             <div
-              key={h.id}
-              className="bg-[var(--accent)] border border-[var(--border)] rounded-2xl p-5 shadow-white/10"
+              key={h._id}
+              className="bg-[var(--accent)] border border-[var(--border)] rounded-2xl p-5 shadow"
             >
               <h3 className="font-bold text-xl mb-2">{h.name}</h3>
               <p><strong>Type:</strong> {h.type}</p>
@@ -168,7 +154,6 @@ export default function SearchOpportunities({ hospitals }) {
               <p><strong>Contact:</strong> {h.contactPerson} ({h.contactTitle})</p>
               <p><strong>Email:</strong> {h.contactEmail}</p>
               <p><strong>Phone:</strong> {h.contactPhone}</p>
-              <p><strong>GPS:</strong> {h.latitude}, {h.longitude}</p>
               <p><strong>Departments:</strong> {(h.departments || []).join(", ")}</p>
               <p><strong>Clinical Needs:</strong> {h.clinicalNeeds}</p>
               <p><strong>Accommodation:</strong> {h.accommodation || "Not specified"}</p>
@@ -176,7 +161,7 @@ export default function SearchOpportunities({ hospitals }) {
               <div className="mt-4">
                 <button
                   onClick={() => expressInterest(h)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-white/10 transition"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
                 >
                   Express Interest
                 </button>
