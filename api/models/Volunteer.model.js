@@ -18,6 +18,7 @@ const volunteerSchema = new mongoose.Schema(
     languages: String,
     motivation: String,
     previousVolunteer: String,
+    documents: [String], // <--- store uploaded file paths
     verificationStatus: {
       type: String,
       enum: ["pending", "verified", "rejected"],

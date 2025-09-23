@@ -22,6 +22,9 @@ export const createVolunteer = async (req, res) => {
   } = req.body;
 
   try {
+    // Map uploaded files to their paths
+    const documents = req.files ? req.files.map(file => file.path) : [];
+
     const volunteer = new Volunteer({
       clerkId,
       firstName,
@@ -39,12 +42,11 @@ export const createVolunteer = async (req, res) => {
       languages,
       motivation,
       previousVolunteer,
+      documents, // <--- add uploaded files
     });
 
     await volunteer.save();
-    res
-      .status(201)
-      .json({ message: "Volunteer registered successfully", volunteer });
+    res.status(201).json({ message: "Volunteer registered successfully", volunteer });
   } catch (err) {
     console.error("Error creating volunteer:", err);
     res.status(500).json({ error: "Server error" });
