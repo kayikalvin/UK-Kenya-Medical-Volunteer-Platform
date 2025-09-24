@@ -6,8 +6,8 @@ export default function SignInPage() {
       <SignIn
         path="/sign-in"
         routing="path"
-        signUpUrl="/sign-up"
-        afterSignInUrl="/"   // 👈 redirect here
+        signUpUrl={window.location.origin + "/sign-up"}
+        afterSignInUrl={window.location.origin + "/"}   // 👈 redirect here
       />
     </div>
   );

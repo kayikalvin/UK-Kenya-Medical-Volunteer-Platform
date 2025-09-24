@@ -7,8 +7,8 @@ export default function SignUpPage() {
         path="/sign-up"
         routing="path"
         signInUrl="/sign-in"
-        afterSignUpUrl="/"   // 👈 redirect here
-        afterSignInUrl="/"   // 👈 in case Clerk falls back
+        afterSignUpUrl={window.location.origin + "/"}
+        afterSignInUrl={window.location.origin + "/"}  // 👈 in case Clerk falls back
       />
     </div>
   );
