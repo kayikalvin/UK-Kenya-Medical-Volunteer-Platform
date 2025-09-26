@@ -8,7 +8,7 @@ const router = express.Router();
 router.post("/", requireAuth, createHospital);
 
 // 👇 Normal users can see verified hospitals
-router.get("/public", requireAuth, getVerifiedHospitals);
+router.get("/public", getVerifiedHospitals);
 
 // Admin-only endpoint
 router.get("/", requireAuth, requireAdmin, getHospitals);

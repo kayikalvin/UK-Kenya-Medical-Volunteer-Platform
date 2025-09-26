@@ -10,11 +10,11 @@ const Navbar = () => {
 
   const tabs = [
     { path: "/", label: "Home" },
-    { path: "/volunteer-register", label: "Volunteer Register" },
-    { path: "/hospital-register", label: "Hospital Registration" },
-    { path: "/verify-credentials", label: "Verify Credentials" },
+    { path: "/volunteer-register", label: "Professional Registration" },
+    { path: "/hospital-register", label: "Institution Registration" },
+    // { path: "/verify-credentials", label: "Verify Credentials" },
     { path: "/search-opportunities", label: "Find Opportunities" },
-    { path: "/search-volunteers", label: "Find Clinicians" },
+    { path: "/search-volunteers", label: "Find Professionals" },
     // { path: "/clinician-register", label: "Clinician Registration" },
   ];
 
