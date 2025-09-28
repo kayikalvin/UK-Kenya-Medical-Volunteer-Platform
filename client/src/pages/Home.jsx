@@ -361,7 +361,7 @@ const Home = ({ setActiveTab }) => {
                 onClick={() => setActiveTab("hospital-register")}
                 className="group border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
               >
-                Find Volunteers
+                Find Professionals
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>

@@ -8,7 +8,19 @@ export default function SignUpPage() {
         routing="path"
         signInUrl="/sign-in"
         afterSignUpUrl={window.location.origin + "/"}
-        afterSignInUrl={window.location.origin + "/"}  // 👈 in case Clerk falls back
+        afterSignInUrl={window.location.origin + "/"}
+        // 👇 Add custom field for role
+        signUpFields={[
+          {
+            type: "select",
+            id: "role",
+            label: "Registering as",
+            options: [
+              { value: "organization", label: "Organization" },
+              { value: "professional", label: "Professional" },
+            ],
+          },
+        ]}
       />
     </div>
   );
