@@ -10,6 +10,7 @@ import volunteerRoutes from "./routes/volunteer.routes.js";
 import hospitalRoutes from "./routes/hospital.routes.js";
 import clinicianRoutes from "./routes/clinician.routes.js";
 import promoteRoutes from "./routes/promote.routes.js";
+import usersRoute from "./routes/users.routes.js";
 
 dotenv.config();
 const app = express();
@@ -36,7 +37,7 @@ mongoose
 console.log("Clerk publishable key:", process.env.CLERK_PUBLISHABLE_KEY);
 console.log("Clerk secret key:", process.env.CLERK_SECRET_KEY ? "Loaded ✅" : "Missing ❌");
 
-
+app.use("/api/users", usersRoute); // NEW
 app.use("/api/volunteers", volunteerRoutes);
 app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/clinicians", clinicianRoutes);

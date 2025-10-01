@@ -25,6 +25,9 @@ import Dashboard from "./pages/Dashboard";
 import AdminPage from "./pages/AdminPage";
 import SignInPage from "./components/SignInPage";
 import SignUpPage from "./components/SignUpPage";
+import CheckEmail from "./components/CheckEmail";
+import EmailVerified from "./components/EmainVerified";
+import OrganizationDashboard from "./components/OrganizationDashboard";
 
 // --- Layouts ---
 function PublicLayout() {
@@ -141,6 +144,10 @@ export default function App() {
     // Auth routes
     { path: "/sign-in/*", element: <SignInPage /> },
     { path: "/sign-up/*", element: <SignUpPage /> },
+
+    { path:"/check-email", element: <CheckEmail /> },
+    { path:"/email-verified", element: <EmailVerified /> },
+    { path:"/organization-dashboard", element: <OrganizationDashboard /> }
   ]);
 
   return <RouterProvider router={router} />;
